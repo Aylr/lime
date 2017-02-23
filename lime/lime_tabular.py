@@ -256,7 +256,7 @@ class LimeTabularExplainer(object):
             print("inverse shape : {}".format(inverse.shape))
             self.__backdoor_for_distribution_evaluation(scaled_data, figure_name='inversed_sample', plot_type='density',
                                                         color="DarkBlue")
-            self.__backdoor_for_distribution_evaluation(scaled_data, figure_name='inversed_sample', plot_type='hist',
+            self.__backdoor_for_distribution_evaluation(inverse, figure_name='inversed_sample', plot_type='hist',
                                                         color="DarkBlue", dump_file_as_csv=True)
 
         distances = sklearn.metrics.pairwise_distances(
