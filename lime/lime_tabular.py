@@ -98,7 +98,7 @@ class LimeTabularExplainer(object):
                  categorical_features=None, categorical_names=None,
                  verbose=False, class_names=None,
                  feature_selection='auto', discretize_continuous=True,
-                 discretizer='quartile', default_kernel_width = None):
+                 discretizer='quartile'):
         """Init function.
 
         Args:
@@ -131,7 +131,7 @@ class LimeTabularExplainer(object):
         """
 
         
-        self.default_kernel_width = default_kernel_width or np.sqrt(training_data.shape[1]) * .75
+        self.default_kernel_width = np.sqrt(training_data.shape[1]) * .75
 
         self.categorical_names = categorical_names
         self.categorical_features = categorical_features
