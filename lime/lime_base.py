@@ -10,16 +10,10 @@ from sklearn.linear_model import Ridge
 class LimeBase(object):
     """Class for learning a locally linear sparse model from perturbed data"""
     def __init__(self,
-                 kernel_fn,
                  verbose=False):
         """Init function
-
-        Args:
-            kernel_fn : function that transforms an array of distances into an
-                        array of proximity values (floats).
             verbose: if true, print local prediction values from linear model.
         """
-        self.kernel_fn = kernel_fn
         self.verbose = verbose
 
     @staticmethod
@@ -107,6 +101,7 @@ class LimeBase(object):
                                    distances,
                                    label,
                                    num_features,
+                                   kernel_fn,
                                    feature_selection='auto',
                                    model_regressor=None):
         """Takes perturbed data, labels and distances, returns explanation.
@@ -144,8 +139,8 @@ class LimeBase(object):
             score is the R^2 value of the returned explanation
         """
 
-        weights = self.kernel_fn(distances)
-        labels_column = neighborhood_labels[:, label]
+        weights = kernel_fn(distances)
+        labels_column = neighborhood_labels[:, label] #yss in lime_tabular
         used_features = self.feature_selection(neighborhood_data,
                                                labels_column,
                                                weights,
