@@ -136,8 +136,16 @@ class LimeTabularExplainer(object):
                 are 'quartile', 'decile' or 'entropy'
         """
 
+        assert isinstance(training_data, np.ndarray), "training_data must be a numpy.ndarray"
+        assert hasattr(training_data, "shape"), "numpy array must have a shape attribute."
+
+        n_rows = training_data.shape[0]
+        n_dim = training_data.shape[1]
         
         self.default_kernel_width = np.sqrt(training_data.shape[1]) * .75
+
+        def kernel(d):
+            return np.sqrt(np.exp(-(d ** 2) / self.default_kernel_width ** 2))
 
         self.categorical_names = categorical_names
         self.categorical_features = categorical_features
@@ -145,37 +153,37 @@ class LimeTabularExplainer(object):
             self.categorical_names = {}
         if self.categorical_features is None:
             self.categorical_features = []
-        self.training_labels = training_labels or np.array(range(training_data))
-        self.discretizer = None
-        if discretize_continuous:
-            if discretizer == 'quartile':
-                self.discretizer = QuartileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
-                    labels=training_labels)
-            elif discretizer == 'decile':
-                self.discretizer = DecileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
-                    labels=training_labels)
-            elif discretizer == 'entropy':
-                self.discretizer = EntropyDiscretizer(
-                    training_data, self.categorical_features, feature_names,
-                    labels=training_labels)
-            else:
-                raise ('''Discretizer must be 'quartile', 'decile' ''' +
-                       '''or 'entropy' ''')
-            self.categorical_features = range(training_data.shape[1])
-            discretized_training_data = self.discretizer.discretize(
-                training_data)
-
+        self.training_labels = training_labels or np.array(range(n_rows))
         self.feature_selection = feature_selection
         self.base = lime_base.LimeBase(kernel, verbose)
         self.scaler = None
         self.class_names = class_names
-        self.feature_names = feature_names
+        self.feature_names = feature_names or range(n_dim)
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
         self.scaler.fit(training_data)
         self.feature_values = {}
         self.feature_frequencies = {}
+
+        self.discretizer = None
+        if discretize_continuous:
+            if discretizer == 'quartile':
+                self.discretizer = QuartileDiscretizer(
+                    training_data, self.categorical_features, self.feature_names,
+                    labels=training_labels)
+            elif discretizer == 'decile':
+                self.discretizer = DecileDiscretizer(
+                    training_data, self.categorical_features, self.feature_names,
+                    labels=training_labels)
+            elif discretizer == 'entropy':
+                self.discretizer = EntropyDiscretizer(
+                    training_data, self.categorical_features, self.feature_names,
+                    labels=training_labels)
+            else:
+                raise KeyError('''Discretizer must be 'quartile', 'decile' ''' +
+                       '''or 'entropy' ''')
+            self.categorical_features = range(n_dim)
+            discretized_training_data = self.discretizer.discretize(
+                training_data)
 
         for feature in self.categorical_features:
             feature_count = collections.defaultdict(lambda: 0.0)
@@ -239,7 +247,7 @@ class LimeTabularExplainer(object):
         """
 
 
-        kernel_width = float(kernel_width) or self.default_kernel_width
+        kernel_width = float(kernel_width or self.default_kernel_width)
 
         def kernel(d):
             return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
@@ -275,13 +283,13 @@ class LimeTabularExplainer(object):
 
         yss = classifier_fn(inverse)
 
-        if not np.allclose(yss.sum(axis=1), 1.0):
-            warn("""
-                    Predictions are not summing to 1, and 
-                    thus does not constitute a probability space.
-                    Check that you classifier outputs probabilities
-                    (Not log_probas, or class predictions).
-                    """)
+        # if not np.allclose(yss.sum(axis=1), 1.0):
+        #     warn("""
+        #             Predictions are not summing to 1, and
+        #             thus does not constitute a probability space.
+        #             Check that you classifier outputs probabilities
+        #             (Not log_probas, or class predictions).
+        #             """)
         if self.class_names is None:
             self.class_names = [str(x) for x in range(yss[0].shape[0])]
         else:
