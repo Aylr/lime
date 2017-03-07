@@ -485,6 +485,9 @@ class LimeTabularExplainer(object):
         ).ravel()
 
         yss = predict_fn(inverse)
+        predicted_value = yss[0]
+        min_y = min(yss)
+        max_y = max(yss)
 
         if not isinstance(yss, np.ndarray): raise exceptions.ModelException("Your model needs to output numpy arrays")
 
@@ -529,7 +532,9 @@ class LimeTabularExplainer(object):
             categorical_features=categorical_features,
             discretized_feature_names=discretized_feature_names)
         ret_exp = explanation.RegressionsExplanation(domain_mapper=domain_mapper)
-        ret_exp.predicted_value = yss[0]
+        ret_exp.predicted_value = predicted_value
+        ret_exp.min_value = min_y
+        ret_exp.max_value = max_y
 
 
 

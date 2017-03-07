@@ -229,6 +229,8 @@ class RegressionsExplanation(object):
         self.local_exp = {}
         self.intercept = {}
         self.predicted_value = None
+        self.min_value = 0.0
+        self.max_value = 1.0
         self.score = None
 
     def as_list(self, label='positive', **kwargs):
@@ -277,15 +279,15 @@ class RegressionsExplanation(object):
         plt.title('Local explanation for class %s' % self.class_names[label])
         return fig
 
-    def show_in_notebook(self, predict_proba=True, **kwargs):
+    def show_in_notebook(self, show_predicted_value=True, **kwargs):
         """Shows html explanation in ipython notebook.
 
            See as_html for parameters.
            This will throw an error if you don't have IPython installed"""
         from IPython.core.display import display, HTML
-        display(HTML(self.as_html(predict_proba, **kwargs)))
+        display(HTML(self.as_html(show_predicted_value = show_predicted_value, **kwargs)))
 
-    def save_to_file(self, file_path, labels=None, predict_proba=True,
+    def save_to_file(self, file_path, labels=None, show_predicted_value=True,
                      **kwargs):
         """Saves html explanation to file. See as_html for paramaters.
 
@@ -293,10 +295,10 @@ class RegressionsExplanation(object):
             file_path: file to save explanations to
         """
         file_ = open(file_path, 'w', encoding='utf8')
-        file_.write(self.as_html(labels, predict_proba, **kwargs))
+        file_.write(self.as_html(show_predicted_value, **kwargs))
         file_.close()
 
-    def as_html(self, show_expected_value=False, **kwargs):
+    def as_html(self, show_predicted_value=False, **kwargs):
         """Returns the explanation as an html page.
 
         Args:
@@ -309,7 +311,7 @@ class RegressionsExplanation(object):
         """
 
         labels = [1]
-        class_names = [0, 1]
+        class_names = ['negative','positive']
 
         def jsonize(x): return json.dumps(x)
 
@@ -325,10 +327,20 @@ class RegressionsExplanation(object):
         <div class="lime top_div" id="top_div%s"></div>
         ''' % random_id
         predict_value_js = ''
-        if show_expected_value:
+        if show_predicted_value:
+
             # Todo, add section for expected value plotting
             #reference self.predicted_value
-            pass
+            #(svg, predicted_value, min_value, max_value)
+            predict_proba_js = u'''
+                    var pp_div = top_div.append('div')
+                                        .classed('lime predicted_value', true);
+                    var pp_svg = pp_div.append('svg').style('width', '100%%');
+                    var pp = new lime.PredictedValue(pp_svg, %s, %s, %s);
+                    ''' % (jsonize(self.predicted_value),
+                           jsonize(float(self.min_value)),
+                           jsonize(float(self.max_value)))
+
 
         exp_js = '''var exp_div;
             var exp = new lime.Explanation(%s);
