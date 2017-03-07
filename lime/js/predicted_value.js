@@ -65,6 +65,16 @@ class PredictedValue {
       .style("font", "14px tahoma, sans-serif")
       .text(min_value.toFixed(2));
 
+  //text for range min annotation
+  let v_adjust_min_value_annotation = text.node().getBBox().height;
+  text = bar.append("text");
+  text.attr("x", bar_x - 10)
+      .attr("y", bar_y + bar_height - 3 + v_adjust_min_value_annotation)
+      .attr("fill", "black")
+      .attr("text-anchor", "end")
+      .style("font", "14px tahoma, sans-serif")
+      .text("(min)");
+
 
   //text for predicted value
   console.log('bar height: ' + bar_height)
@@ -79,6 +89,9 @@ class PredictedValue {
       .style("font", "14px tahoma, sans-serif")
 
 
+
+
+
   //text for max value
   text = bar.append("text");
   text.text(max_value.toFixed(2));
@@ -90,13 +103,24 @@ class PredictedValue {
       .style("font", "14px tahoma, sans-serif");
 
 
+  //text for range max annotation
+  let v_adjust_max_value_annotation = text.node().getBBox().height;
+  text = bar.append("text");
+  text.attr("x", bar_x + bar_width +  h_adjust)
+      .attr("y", bar_y + bar_height - 3 + v_adjust_min_value_annotation)
+      .attr("fill", "black")
+      .attr("text-anchor", "end")
+      .style("font", "14px tahoma, sans-serif")
+      .text("(max)");
+
+
   //readjust svg size
   let svg_width = width + 1 * h_adjust;
   svg.style('width', svg_width + 'px');
 
   this.svg_height = n_bars * (bar_height) + bar_yshift + (2 * text.node().getBBox().height) + 10;
   svg.style('height', this.svg_height + 'px');
-  if log_coords{
+  if (log_coords) {
       console.log("svg width: " + svg_width);
       console.log("svg height: " + this.svg_height);
       console.log("bar_y: " + bar_y);
