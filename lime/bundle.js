@@ -27353,6 +27353,10 @@ var lime =
 	
 	    _classCallCheck(this, PredictedValue);
 	
+	    console.log('Contructing a thingy!');
+	    console.log("Min value: " + min_value);
+	    console.log("Max value: " + max_value);
+	    console.log("Pred value: " + predicted_value);
 	    if (min_value == max_value) {
 	        var width_proportion = 1.0;
 	    } else {
@@ -27360,6 +27364,7 @@ var lime =
 	    }
 	
 	    var width = parseInt(svg.style('width'));
+	    console.log(width);
 	
 	    this.color = _d2.default.scale.category10();
 	    this.color('predicted_value');
@@ -27369,11 +27374,8 @@ var lime =
 	    var bar_width = width - bar_x - 32;
 	    var x_scale = _d2.default.scale.linear().range([0, bar_width]);
 	    var bar_height = 17;
-	    var space_between_bars = 5;
 	    var bar_yshift = title === '' ? 0 : 35;
 	    var n_bars = 1;
-	    this.svg_height = n_bars * (bar_height + space_between_bars) + bar_yshift;
-	    svg.style('height', this.svg_height + 'px');
 	    var this_object = this;
 	    if (title !== '') {
 	        svg.append('text').text(title).attr('x', 20).attr('y', 20);
@@ -27382,15 +27384,46 @@ var lime =
 	    var bar = svg.append("g");
 	
 	    var rect = bar.append("rect");
-	    rect.attr("x", bar_x).attr("y", bar_y).attr("height", bar_height).attr("width", x_scale(data[i])).style("fill", this.color);
-	    bar.append("rect").attr("x", bar_x).attr("y", bar_y(i)).attr("height", bar_height).attr("width", bar_width - 1).attr("fill-opacity", 0).attr("stroke", "black");
+	    rect.attr("x", bar_x).attr("y", bar_y).attr("height", bar_height).attr("width", x_scale(width_proportion)).style("fill", this.color);
+	    bar.append("rect").attr("x", bar_x).attr("y", bar_y).attr("height", bar_height).attr("width", x_scale(1)).attr("fill-opacity", 0).attr("stroke", "black");
 	    var text = bar.append("text");
 	    text.classed("prob_text", true);
-	    text.attr("y", bar_y(i) + bar_height - 3).attr("fill", "black").style("font", "14px tahoma, sans-serif");
+	    text.attr("y", bar_y + bar_height - 3).attr("fill", "black").style("font", "14px tahoma, sans-serif");
+	
+	    /*
 	    text = bar.append("text");
-	    text.attr("x", bar_x + x_scale(data[i]) + 5).attr("y", bar_y(i) + bar_height - 3).attr("fill", "black").style("font", "14px tahoma, sans-serif").text(min_value.toFixed(2));
+	    text.attr("x", bar_x + 5)
+	        .attr("y", bar_y + bar_height - 3)
+	        .attr("fill", "black")
+	        .style("font", "14px tahoma, sans-serif")
+	        .text(min_value.toFixed(2));
+	     */
 	    text = bar.append("text");
-	    text.attr("x", bar_x - 10).attr("y", bar_y(i) + bar_height - 3).attr("fill", "black").attr("text-anchor", "end").style("font", "14px tahoma, sans-serif").text(max_value.toFixed(2));
+	    text.attr("x", bar_x - 10).attr("y", bar_y + bar_height - 3).attr("fill", "black").attr("text-anchor", "end").style("font", "14px tahoma, sans-serif").text(min_value.toFixed(2));
+	
+	    //text for predicted value
+	    console.log('bar height: ' + bar_height);
+	    text = bar.append("text");
+	    text.text(predicted_value.toFixed(2));
+	    var h_adjust_predicted_value_text = text.node().getBBox().width / 2;
+	    var v_adjust_predicted_value_text = text.node().getBBox().height;
+	    text.attr("x", bar_x - 10 + x_scale(width_proportion) + h_adjust_predicted_value_text).attr("y", bar_y + bar_height + v_adjust_predicted_value_text).attr("fill", "black").attr("text-anchor", "end").style("font", "14px tahoma, sans-serif");
+	
+	    text = bar.append("text");
+	    text.text(max_value.toFixed(2));
+	    var h_adjust = text.node().getBBox().width;
+	
+	    text.attr("x", bar_x + bar_width + h_adjust).attr("y", bar_y + bar_height - 3).attr("fill", "black").attr("text-anchor", "end").style("font", "14px tahoma, sans-serif");
+	
+	    var svg_width = width + 1 * h_adjust;
+	    svg.style('width', svg_width + 'px');
+	
+	    this.svg_height = n_bars * bar_height + bar_yshift + 2 * text.node().getBBox().height + 10;
+	    svg.style('height', this.svg_height + 'px');
+	    console.log("svg width: " + svg_width);
+	    console.log("svg height: " + this.svg_height);
+	    console.log("bar_y: " + bar_y);
+	    console.log("bar_x: " + bar_x);
 	};
 	
 	exports.default = PredictedValue;

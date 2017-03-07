@@ -328,11 +328,12 @@ class RegressionsExplanation(object):
         ''' % random_id
         predict_value_js = ''
         if show_predicted_value:
+            print 'here'
 
             # Todo, add section for expected value plotting
             #reference self.predicted_value
             #(svg, predicted_value, min_value, max_value)
-            predict_proba_js = u'''
+            predict_value_js = u'''
                     var pp_div = top_div.append('div')
                                         .classed('lime predicted_value', true);
                     var pp_svg = pp_div.append('svg').style('width', '100%%');
@@ -340,6 +341,7 @@ class RegressionsExplanation(object):
                     ''' % (jsonize(self.predicted_value),
                            jsonize(float(self.min_value)),
                            jsonize(float(self.max_value)))
+
 
 
         exp_js = '''var exp_div;
@@ -364,4 +366,5 @@ class RegressionsExplanation(object):
         </script>
         ''' % (random_id, predict_value_js, exp_js, raw_js)
         out += u'</body></html>'
+
         return out
