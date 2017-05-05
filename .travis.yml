@@ -1,14 +1,18 @@
+dist: trusty
+sudo: false
 language: python
+cache: pip
 python:
   - "2.7"
   - "3.5"
-before_install:
-  - "sudo apt-get install python-scipy"
+  - "3.6"
 # command to install dependencies
 install:
-  - "pip install scipy"
-  - "pip install sklearn"
-  - "python setup.py install"
+  - pip install flake8 numpy scipy
+  - pip install scikit-learn
+  - python setup.py install
 # command to run tests
-script: "cd lime/tests && python test_lime_tabular.py && python test_lime_text.py"
+script:
+  - py.test lime
+  - flake8 lime
 
